@@ -1,4 +1,4 @@
-# Vortex Instrument Labs - the Moderne Smart Clock
+# Vortex Instrument Labs - Moderne Smart Clock
 
 _Beating Yesterday's Technology Senseless_
 
