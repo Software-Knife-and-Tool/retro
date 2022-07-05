@@ -1,0 +1,248 @@
+##########
+##
+##  SPDX-License-Identifier: MIT
+##
+##  Copyright (c) 2017-2022 James M. Putnam <putnamjm.design@gmail.com>
+##
+##########
+
+##########
+##
+## gra-afch controller
+##
+###########
+"""Manage GRA-AFCH NCS31X hardware
+
+See module ncs31x for display/clock interface.
+
+Classes:
+    GraAfch
+
+Functions:
+
+    dump(object, file)
+    dumps(object) -> string
+    load(file) -> object
+    loads(string) -> object
+
+    buttons()
+    default_rotor()
+    display_string(digits)
+    exec_(op)
+    gra_afch()
+    run_rotor(rotor_def)
+    update_backlight(color)
+
+Misc variables:
+
+    VERSION
+    _conf_dict
+    _dots
+    _lock
+    _tube_mask
+
+"""
+
+import json
+import time
+import pigpio
+import os
+
+from time import localtime, strftime
+from datetime import datetime
+
+from ncs31x import Ncs31x
+
+class GraAfch:
+    """board utilities
+    """
+    VERSION = '0.0.1'
+
+    # seconds
+    _DEBOUNCE_DELAY = 150.0 / 1000
+    _TOTAL_DELAY = 17.0 / 1000
+
+    # interrupts
+    _INT_EDGE_RISING = 1
+    _INT_EDGE_FALLING = 0
+    
+    _gpio = None
+    _ncs31x = None
+        
+    _conf_dict = None
+
+    _lock = None
+    _dots = None
+
+    _tube_mask = [255 for _ in range(8)]
+    _toggle = None
+
+    # def string_to_color(str_):
+    #    def ctoi_(nib):#
+    #        nval = 0
+    #
+    #        if nib >= '0' & nib <= '9':
+    #            nval = nib - '0'
+    #        elif nib >= 'a' & nib <= 'f':
+    #            nval = nib - 'a' + 10;
+    #        elif (nib >= 'A' & nib <= 'F'):
+    #            nval = nib - 'A' + 10
+    #        else:
+    #            nval = -1
+    #        return nval
+    #
+    #    def channel_(msn, lsn):
+    #        m = ctoi(msn);
+    #        l = ctoi(lsn);
+    #
+    #        return (m < 0 | l < 0) if -1 else (m << 4) + l
+    #
+    #    r = channel(str[0], str[1])
+    #    g = channel(str[2], str[3])
+    #    b = channel(str[4], str[5])
+    #
+    #    return [r, g, b];
+
+    def update_backlight(self, color):
+        """change the backlight color
+        """
+        
+        def scale_(nval):
+            return int(nval * (100 / 255))
+
+        self._ncs31x.backlight(
+            [scale_(color[0]),
+             scale_(color[1]),
+             scale_(color[2])])
+
+    def display_numerals(self, digits):
+        """stuff the tubes from decimal string
+        """
+        
+        def tubes_(str_, start):
+            tube_map_ = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
+
+            def num_(ch):
+                return 0 if ch == ' ' else int(ch)
+
+            bits = (tube_map_[num_(str_[start])]) << 20
+            bits |= (tube_map_[num_(str_[start - 1])]) << 10
+            bits |= (tube_map_[num_(str_[start - 2])])
+
+            return bits
+
+        def dots_(bits):
+            if self._dots:
+                bits |= Ncs31x._LOWER_DOTS_MASK
+                bits |= Ncs31x._UPPER_DOTS_MASK
+            else:
+                bits &= ~Ncs31x._LOWER_DOTS_MASK
+                bits &= ~Ncs31x._UPPER_DOTS_MASK
+
+            return bits
+
+        def fmt_(nval, buffer, start, off):
+            buffer[start] = (nval >> 24 & 0xff) & self._tube_mask[off]
+            buffer[start + 1] = ((nval >> 16) & 0xff) & self._tube_mask[off + 1]
+            buffer[start + 2] = ((nval >> 8) & 0xff) & self._tube_mask[off + 2]
+            buffer[start + 3] = (nval & 0xff) & self._tube_mask[off + 3]
+
+            return buffer
+
+        buffer = [0 for _ in range(8)]
+
+        left = tubes_(digits, Ncs31x._LEFT_REPR_START)
+        left = dots_(left)
+        fmt_(left, buffer, Ncs31x._LEFT_BUFFER_START, 0)
+
+        right = tubes_(digits, Ncs31x._RIGHT_REPR_START)
+        right = dots_(right)
+        fmt_(right, buffer, Ncs31x._RIGHT_BUFFER_START, 4)
+
+        self._ncs31x.display(buffer)
+
+    def now(self):
+        """format the current time onto the display
+        """
+        
+        def _ch_to_int(val):
+            return ord(val) - 0x30
+
+        now_ = datetime.now();
+        now_str = now_.strftime("%I%M%S") if self._conf_dict["12hour"] else now_.strftime("%H%M%S")
+
+        self.display_numerals(
+            [_ch_to_int(now_str[0]),
+             _ch_to_int(now_str[1]),
+             _ch_to_int(now_str[2]),
+             _ch_to_int(now_str[3]),
+             _ch_to_int(now_str[4]),
+             _ch_to_int(now_str[5]),
+             8,
+             8,
+            ])
+
+    def buttons(self):
+        """button events
+        """
+        def nope(pin, level, tick):
+            pass
+
+        def debounce_mode(pin, level, tick):
+            self._gpio.callback(Ncs31x._MODE_BUTTON_PIN,
+                                self._INT_EDGE_RISING, nope)
+            time.sleep(self._DEBOUNCE_DELAY)
+            self._gpio.callback(Ncs31x._MODE_BUTTON_PIN,
+                                self._INT_EDGE_RISING, debounce_mode)
+
+        def debounce_up(pin, level, tick):
+            self._gpio.callback(Ncs31x._UP_BUTTON_PIN,
+                                self._INT_EDGE_RISING, nope)
+            time.sleep(self._DEBOUNCE_DELAY)
+            self._gpio.callback(Ncs31x._UP_BUTTON_PIN,
+                                self._INT_EDGE_RISING, debounce_up)
+
+        def debounce_down(pin, level, tick):
+            self._gpio.callback(Ncs31x._DOWN_BUTTON_PIN,
+                                self.INT_EDGE_RISING, nope)
+            time.sleep(self._DEBOUNCE_DELAY)
+            self._gpio.callback(Ncs31x._DOWN_BUTTON_PIN,
+                                self._INT_EDGE_RISING, debounce_down)
+
+#        self._ncs31x.init_pin(Ncs31x.DOWN_UP_PIN)
+#        self._ncs31x.init_pin(Ncs31x.DOWN_BUTTON_PIN)
+#        self._ncs31x.init_pin(Ncs31x.MODE_BUTTON_PIN)
+#
+#        self._gpio.callback(Ncs31x.MODE_BUTTON_PIN, self._INT_EDGE_RISING,
+#                             debounce_mode)
+#        self._gpio.callback(Ncs31x.UP_BUTTON_PIN, self._INT_EDGE_RISING,
+#                             debounce_up)
+#        self._gpio.callback(Ncs31x.DOWN_BUTTON_PIN, self._INT_EDGE_RISING,
+#                             debounce_down)
+
+    def config(self):
+        return self._conf_dict
+
+    def __init__(self, conf_dict):
+        """initialize the gra-afch module
+
+            read the config file
+            connect to the board
+            blank the display and clear it
+            set up button debouncing
+        """
+
+        self._conf_dict = conf_dict;
+        
+        self._toggle = True
+        self._ncs31x = Ncs31x()
+        self._gpio = self._ncs31x._gpio
+        self._dots = conf_dict["dots"]
+
+        if conf_dict['back_light']:
+            self._ncs31x.backlight(conf_dict['back_light'])
+
+        self._ncs31x.blank()
+        self._ncs31x.clear()
+
+        self.buttons()

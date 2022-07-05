@@ -1,0 +1,6 @@
+{
+    "12hour": true,
+    "back_light": [0, 0, 0],
+    "dots": true,
+    "ntp": true
+}
