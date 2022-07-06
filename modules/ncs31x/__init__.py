@@ -45,9 +45,7 @@ class Ncs31x:
     miso  19	35	36	16	ce2
           26	37	38	20	mosi
     Gnd    -	39	40	21	sclk
-    """
 
-    """
     # wiringpi pin constants
     LE_PIN = 3
     R5222_PIN = 22
@@ -58,9 +56,9 @@ class Ncs31x:
 
     BUZZER_PIN = 0
     
-    UP_BUTTON_PIN = 1
-    DOWN_BUTTON_PIN = 4
-    MODE_BUTTON_PIN = 5
+    UP_BUTTON_PIN = 12
+    DOWN_BUTTON_PIN = 16
+    MODE_BUTTON_PIN = 18
     """
 
     # pigpio pin constants
@@ -73,9 +71,9 @@ class Ncs31x:
 
     BUZZER_PIN = 17
     
-    UP_BUTTON_PIN = 1
-    DOWN_BUTTON_PIN = 4
-    MODE_BUTTON_PIN = 5
+    UP_BUTTON_PIN = 18
+    DOWN_BUTTON_PIN = 23
+    MODE_BUTTON_PIN = 24
 
     I2C_ADDRESS = 0x68
     I2C_FLUSH = 0
@@ -108,8 +106,10 @@ class Ncs31x:
     _gpio_spi = None
     
     _hv5222 = None
-    
+
     def clear(self):
+        """turn off all tubes
+        """
         self.display([0 for _ in range(8)])
         
     def blank(self):
@@ -142,19 +142,19 @@ class Ncs31x:
         self._gpio.i2c_write_byte(self._gpio_i2c, self.I2C_FLUSH)
         self._gpio.i2c_write_byte_data(self._gpio_i2c, self._SECOND_REGISTER,
                                        _dec_to_bcd(tm.tm_sec))
-        self._gpio.ic2_write_byte_data(self._gpio_i2c, self._MINUTE_REGISTER,
+        self._gpio.i2c_write_byte_data(self._gpio_i2c, self._MINUTE_REGISTER,
                                       _dec_to_bcd(tm.tm_min))
-        self._gpio.ic2_write_byte_data(self._gpio_i2c, self._HOUR_REGISTER,
+        self._gpio.i2c_write_byte_data(self._gpio_i2c, self._HOUR_REGISTER,
                                       _dec_to_bcd(tm.tm_hour))
-        self._gpio.ic2_write_byte_data(self._gpio_i2c, self._WEEK_REGISTER,
+        self._gpio.i2c_write_byte_data(self._gpio_i2c, self._WEEK_REGISTER,
                                       _dec_to_bcd(tm.tm_wday))
-        self._gpio.ic2_write_byte_data(self._gpio_i2c, self._DAY_REGISTER,
+        self._gpio.i2c_write_byte_data(self._gpio_i2c, self._DAY_REGISTER,
                                       _dec_to_bcd(tm.tm_mday))
-        self._gpio.ic2_write_byte_data(self._gpio_i2c, self._MONTH_REGISTER,
+        self._gpio.i2c_write_byte_data(self._gpio_i2c, self._MONTH_REGISTER,
                                       _dec_to_bcd(tm.tm_mon))
-        self._gpio.ic2_write_byte_data(self._gpio_i2c, self._YEAR_REGISTER,
-                                      _dec_to_bcd(tm.tm_year))
-        self._gpio.ic2_write_byte(self._gpio_i2c, self.I2C_FLUSH)
+        self._gpio.i2c_write_byte_data(self._gpio_i2c, self._YEAR_REGISTER,
+                                      _dec_to_bcd(tm.tm_year - 2000))
+        self._gpio.i2c_write_byte(self._gpio_i2c, self.I2C_FLUSH)
 
     def read_rtc(self, hour12):
         """read the RTC
@@ -173,7 +173,7 @@ class Ncs31x:
 
         self._gpio.i2c_write_byte(self._gpio_i2c, self.I2C_FLUSH)
 
-        now = (_bcd_to_dec(self._gpio.i2c_read_byte_data(self._gpio_i2c, self._YEAR_REGISTER)) + 1900,
+        now = (_bcd_to_dec(self._gpio.i2c_read_byte_data(self._gpio_i2c, self._YEAR_REGISTER)) + 2000,
                _bcd_to_dec(self._gpio.i2c_read_byte_data(self._gpio_i2c, self._MONTH_REGISTER)),
                _bcd_to_dec(self._gpio.i2c_read_byte_data(self._gpio_i2c, self._DAY_REGISTER)),
                _hour12(),
@@ -206,40 +206,6 @@ class Ncs31x:
 
             return bits
 
-        def init_pin(self, pin):
-            """set a GPIO pin to input and pulled-up
-            """
-
-            self._gpio.set_mode(pin, pigpio.INPUT)
-            self._gpio.set_pull_up_down(pin, pigpio.PUD_UP)
-
-        def func_mode(self):
-            """button debouncing
-            """
-
-            if (time.time_ns() - self.func_mode.debounce) > self._DEBOUNCE_DELAY:
-                print('MODE button was pressed.')
-                self.func_mode.debounce = time.time_ns()
-
-        def func_up(self):
-            """button debouncing
-            """
-            if (time.time_ns() - self.func_up.debounce) > self._DEBOUNCE_DELAY:
-                print('UP button was pressed.')
-                self.func_up.debounce = time.time_ns()
-
-        def func_down(self):
-            """button debouncing
-            """
-
-            if (time.time_ns() - self.func_down.debounce) > self._DEBOUNCE_DELAY:
-                print('DOWN button was pressed.')
-                self.func_down.debounce = time.time_ns()
-
-        func_mode.debounce = 0
-        func_up.debounce = 0
-        func_down.debounce = 0
-
         display_ = tubes
         if self._hv5222:
             reverse = rev_bits(tube_to_bits(display_))
@@ -254,6 +220,13 @@ class Ncs31x:
             display_[3] = reverse >> 56
 
         self._gpio.spi_write(self._gpio_spi, bytes(display_))
+
+    def init_pin(self, pin):
+        """set a GPIO pin to input and pulled-up
+        """
+
+        self._gpio.set_mode(pin, pigpio.INPUT)
+        self._gpio.set_pull_up_down(pin, pigpio.PUD_UP)
 
     def __init__(self):
         """initialize an ncs31x object

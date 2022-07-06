@@ -49,7 +49,6 @@ import pigpio
 import os
 
 from time import localtime, strftime
-from datetime import datetime
 
 from ncs31x import Ncs31x
 
@@ -59,23 +58,25 @@ class GraAfch:
     VERSION = '0.0.1'
 
     # seconds
-    _DEBOUNCE_DELAY = 150.0 / 1000
-    _TOTAL_DELAY = 17.0 / 1000
+    _DEBOUNCE_DELAY = 1.5
+    _TOTAL_DELAY = 1.7
 
     # interrupts
     _INT_EDGE_RISING = 1
     _INT_EDGE_FALLING = 0
-    
-    _gpio = None
+
+    _mode_cb = None
+    _up_cb = None
+    _down_cb = None
+
+    # ncs31x
     _ncs31x = None
-        
+    _gpio = None    
     _conf_dict = None
 
-    _lock = None
+    # display
     _dots = None
-
     _tube_mask = [255 for _ in range(8)]
-    _toggle = None
 
     # def string_to_color(str_):
     #    def ctoi_(nib):#
@@ -165,19 +166,14 @@ class GraAfch:
         """format the current time onto the display
         """
         
-        def _ch_to_int(val):
-            return ord(val) - 0x30
-
-        now_ = datetime.now();
-        now_str = now_.strftime("%I%M%S") if self._conf_dict["12hour"] else now_.strftime("%H%M%S")
-
+        now_ = self._ncs31x.read_rtc(self._conf_dict["12hour"])
         self.display_numerals(
-            [_ch_to_int(now_str[0]),
-             _ch_to_int(now_str[1]),
-             _ch_to_int(now_str[2]),
-             _ch_to_int(now_str[3]),
-             _ch_to_int(now_str[4]),
-             _ch_to_int(now_str[5]),
+            [now_.tm_hour // 10,
+             now_.tm_hour % 10,
+             now_.tm_min // 10,
+             now_.tm_min % 10,
+             now_.tm_sec // 10,
+             now_.tm_sec % 10,
              8,
              8,
             ])
@@ -185,40 +181,37 @@ class GraAfch:
     def buttons(self):
         """button events
         """
-        def nope(pin, level, tick):
-            pass
-
         def debounce_mode(pin, level, tick):
-            self._gpio.callback(Ncs31x._MODE_BUTTON_PIN,
-                                self._INT_EDGE_RISING, nope)
+            self._mode_cb.cancel()
+            print("mode")
             time.sleep(self._DEBOUNCE_DELAY)
-            self._gpio.callback(Ncs31x._MODE_BUTTON_PIN,
-                                self._INT_EDGE_RISING, debounce_mode)
+            self._mode_cb = self._gpio.callback(Ncs31x.MODE_BUTTON_PIN,
+                                                self._INT_EDGE_RISING, debounce_mode)
 
         def debounce_up(pin, level, tick):
-            self._gpio.callback(Ncs31x._UP_BUTTON_PIN,
-                                self._INT_EDGE_RISING, nope)
+            self._up_cb.cancel()
+            print("up")
             time.sleep(self._DEBOUNCE_DELAY)
-            self._gpio.callback(Ncs31x._UP_BUTTON_PIN,
-                                self._INT_EDGE_RISING, debounce_up)
+            self._up_cb = self._gpio.callback(Ncs31x.UP_BUTTON_PIN,
+                                                self._INT_EDGE_RISING, debounce_up)
 
         def debounce_down(pin, level, tick):
-            self._gpio.callback(Ncs31x._DOWN_BUTTON_PIN,
-                                self.INT_EDGE_RISING, nope)
+            self._down_cb.cancel()
+            print("down")
             time.sleep(self._DEBOUNCE_DELAY)
-            self._gpio.callback(Ncs31x._DOWN_BUTTON_PIN,
-                                self._INT_EDGE_RISING, debounce_down)
+            self._down_cb = self._gpio.callback(Ncs31x.DOWN_BUTTON_PIN,
+                                                self._INT_EDGE_RISING, debounce_down)
 
-#        self._ncs31x.init_pin(Ncs31x.DOWN_UP_PIN)
-#        self._ncs31x.init_pin(Ncs31x.DOWN_BUTTON_PIN)
-#        self._ncs31x.init_pin(Ncs31x.MODE_BUTTON_PIN)
-#
-#        self._gpio.callback(Ncs31x.MODE_BUTTON_PIN, self._INT_EDGE_RISING,
-#                             debounce_mode)
-#        self._gpio.callback(Ncs31x.UP_BUTTON_PIN, self._INT_EDGE_RISING,
-#                             debounce_up)
-#        self._gpio.callback(Ncs31x.DOWN_BUTTON_PIN, self._INT_EDGE_RISING,
-#                             debounce_down)
+        self._ncs31x.init_pin(Ncs31x.UP_BUTTON_PIN)
+        self._ncs31x.init_pin(Ncs31x.DOWN_BUTTON_PIN)
+        self._ncs31x.init_pin(Ncs31x.MODE_BUTTON_PIN)
+
+        self._mode_cb = self._gpio.callback(Ncs31x.MODE_BUTTON_PIN, self._INT_EDGE_RISING,
+                                       debounce_mode)
+        self._up_cb = self._gpio.callback(Ncs31x.UP_BUTTON_PIN, self._INT_EDGE_RISING,
+                                     debounce_up)
+        self._down_cb = self._gpio.callback(Ncs31x.DOWN_BUTTON_PIN, self._INT_EDGE_RISING,
+                                     debounce_down)
 
     def config(self):
         return self._conf_dict
@@ -234,7 +227,6 @@ class GraAfch:
 
         self._conf_dict = conf_dict;
         
-        self._toggle = True
         self._ncs31x = Ncs31x()
         self._gpio = self._ncs31x._gpio
         self._dots = conf_dict["dots"]
