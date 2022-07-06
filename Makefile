@@ -10,7 +10,9 @@ BASE = /home/putnamjm
 PACKAGES = $(BASE)/moderne/modules:$(BASE)/.local/lib/python3.9/site-packages
 
 install:
-	@pip3 install pigpio python-pigpio python3-pigpio dbus-python
+	@sudo apt install -y python3-pip pigpiod
+	@pip3 install pigpio dbus-python
+	@sudo make -C ../service install
 
 unblank:
 	@sudo env "PYTHONPATH=$(PACKAGES)" python3 unblank.py
