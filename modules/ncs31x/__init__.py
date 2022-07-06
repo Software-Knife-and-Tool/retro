@@ -129,9 +129,11 @@ class Ncs31x:
         """change the backlight color
         """
 
-        # wiringpi.softPwmWrite(self._RED_LIGHT_PIN, color[0])
-        # wiringpi.softPwmWrite(self._GREEN_LIGHT_PIN, color[1])
-        # wiringpi.softPwmWrite(self._BLUE_LIGHT_PIN, color[2])
+        print(color)
+        
+        self._gpio.set_PWM_dutycycle(self.RED_LIGHT_PIN, color[0])
+        self._gpio.set_PWM_dutycycle(self.GREEN_LIGHT_PIN, color[1])
+        self._gpio.set_PWM_dutycycle(self.BLUE_LIGHT_PIN, color[2])
 
     def write_rtc(self, tm):
         """write the RTC from a time struct
@@ -237,9 +239,12 @@ class Ncs31x:
         # wiringpi.softToneCreate(BUZZER_PIN)
         # wiringpi.softToneWrite(BUZZER_PIN, 1000)
 
-        # wiringpi.softPwmCreate(self._RED_LIGHT_PIN, 0, self._MAX_POWER)
-        # wiringpi.softPwmCreate(self._GREEN_LIGHT_PIN, 0, self._MAX_POWER)
-        # wiringpi.softPwmCreate(self._BLUE_LIGHT_PIN, 0, self._MAX_POWER)
+        self._gpio.set_PWM_range(self.RED_LIGHT_PIN, self._MAX_POWER)
+        self._gpio.set_PWM_dutycycle(self.RED_LIGHT_PIN, 0)
+        self._gpio.set_PWM_range(self.GREEN_LIGHT_PIN, self._MAX_POWER)
+        self._gpio.set_PWM_dutycycle(self.GREEN_LIGHT_PIN, 0)
+        self._gpio.set_PWM_range(self.BLUE_LIGHT_PIN, self._MAX_POWER)
+        self._gpio.set_PWM_dutycycle(self.BLUE_LIGHT_PIN, 0)
 
         # open the I2C and SPI busses to the NCS31X device
         self._gpio_i2c = self._gpio.i2c_open(1, self.I2C_ADDRESS)

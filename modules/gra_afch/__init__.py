@@ -13,7 +13,7 @@
 ###########
 """Manage GRA-AFCH NCS31X hardware
 
-See module ncs31x for display/clock interface.
+See module ncs31x for display board interface.
 
 Classes:
     GraAfch
@@ -26,11 +26,8 @@ Functions:
     loads(string) -> object
 
     buttons()
-    default_rotor()
-    display_string(digits)
-    exec_(op)
-    gra_afch()
-    run_rotor(rotor_def)
+    display_numerals(digits)
+    events()
     update_backlight(color)
 
 Misc variables:
@@ -40,7 +37,6 @@ Misc variables:
     _dots
     _lock
     _tube_mask
-
 """
 
 import json
@@ -49,6 +45,7 @@ import pigpio
 import os
 
 from time import localtime, strftime
+from threading import Timer
 
 from ncs31x import Ncs31x
 
@@ -58,8 +55,8 @@ class GraAfch:
     VERSION = '0.0.1'
 
     # seconds
-    _DEBOUNCE_DELAY = 1.5
-    _TOTAL_DELAY = 1.7
+    _DEBOUNCE_DELAY = 0.015
+    _TOTAL_DELAY = 0.017
 
     # interrupts
     _INT_EDGE_RISING = 1
@@ -183,24 +180,21 @@ class GraAfch:
         """
         def debounce_mode(pin, level, tick):
             self._mode_cb.cancel()
-            print("mode")
-            time.sleep(self._DEBOUNCE_DELAY)
-            self._mode_cb = self._gpio.callback(Ncs31x.MODE_BUTTON_PIN,
-                                                self._INT_EDGE_RISING, debounce_mode)
+            Timer(self._DEBOUNCE_DELAY,
+                  lambda: self._gpio.callback(Ncs31x.MODE_BUTTON_PIN, self._INT_EDGE_RISING, debounce_mode),
+                  []).start()
 
         def debounce_up(pin, level, tick):
             self._up_cb.cancel()
-            print("up")
-            time.sleep(self._DEBOUNCE_DELAY)
-            self._up_cb = self._gpio.callback(Ncs31x.UP_BUTTON_PIN,
-                                                self._INT_EDGE_RISING, debounce_up)
+            Timer(self._DEBOUNCE_DELAY,
+                  lambda: self._gpio.callback(Ncs31x.UP_BUTTON_PIN, self._INT_EDGE_RISING, debounce_up),
+                  []).start()
 
         def debounce_down(pin, level, tick):
             self._down_cb.cancel()
-            print("down")
-            time.sleep(self._DEBOUNCE_DELAY)
-            self._down_cb = self._gpio.callback(Ncs31x.DOWN_BUTTON_PIN,
-                                                self._INT_EDGE_RISING, debounce_down)
+            Timer(self._DEBOUNCE_DELAY,
+                  lambda: self._gpio.callback(Ncs31x.DOWN_BUTTON_PIN, self._INT_EDGE_RISING, debounce_down),
+                  []).start()
 
         self._ncs31x.init_pin(Ncs31x.UP_BUTTON_PIN)
         self._ncs31x.init_pin(Ncs31x.DOWN_BUTTON_PIN)
