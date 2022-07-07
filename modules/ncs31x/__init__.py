@@ -129,8 +129,6 @@ class Ncs31x:
         """change the backlight color
         """
 
-        print(color)
-        
         self._gpio.set_PWM_dutycycle(self.RED_LIGHT_PIN, color[0])
         self._gpio.set_PWM_dutycycle(self.GREEN_LIGHT_PIN, color[1])
         self._gpio.set_PWM_dutycycle(self.BLUE_LIGHT_PIN, color[2])

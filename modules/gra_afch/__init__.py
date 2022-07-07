@@ -20,14 +20,8 @@ Classes:
 
 Functions:
 
-    dump(object, file)
-    dumps(object) -> string
-    load(file) -> object
-    loads(string) -> object
-
     buttons()
     display_numerals(digits)
-    events()
     update_backlight(color)
 
 Misc variables:
@@ -46,6 +40,7 @@ import os
 
 from time import localtime, strftime
 from threading import Timer
+from event import Event
 
 from ncs31x import Ncs31x
 
@@ -58,7 +53,7 @@ class GraAfch:
     _DEBOUNCE_DELAY = 0.015
     _TOTAL_DELAY = 0.017
 
-    # interrupts
+    # events
     _INT_EDGE_RISING = 1
     _INT_EDGE_FALLING = 0
 
@@ -66,9 +61,15 @@ class GraAfch:
     _up_cb = None
     _down_cb = None
 
+    _mode_event = None
+    _up_event = None
+    _down_event = None
+        
     # ncs31x
     _ncs31x = None
-    _gpio = None    
+    _gpio = None
+    _event = None
+    
     _conf_dict = None
 
     # display
@@ -180,18 +181,21 @@ class GraAfch:
         """
         def debounce_mode(pin, level, tick):
             self._mode_cb.cancel()
+            self._event.send(self._mode_event)
             Timer(self._DEBOUNCE_DELAY,
                   lambda: self._gpio.callback(Ncs31x.MODE_BUTTON_PIN, self._INT_EDGE_RISING, debounce_mode),
                   []).start()
 
         def debounce_up(pin, level, tick):
             self._up_cb.cancel()
+            self._event.send(self._up_event)
             Timer(self._DEBOUNCE_DELAY,
                   lambda: self._gpio.callback(Ncs31x.UP_BUTTON_PIN, self._INT_EDGE_RISING, debounce_up),
                   []).start()
 
         def debounce_down(pin, level, tick):
             self._down_cb.cancel()
+            self._event.send(self._down_event)
             Timer(self._DEBOUNCE_DELAY,
                   lambda: self._gpio.callback(Ncs31x.DOWN_BUTTON_PIN, self._INT_EDGE_RISING, debounce_down),
                   []).start()
@@ -210,21 +214,26 @@ class GraAfch:
     def config(self):
         return self._conf_dict
 
-    def __init__(self, conf_dict):
+    def __init__(self, conf_dict, event):
         """initialize the gra-afch module
 
             read the config file
             connect to the board
             blank the display and clear it
-            set up button debouncing
+            set up button events
         """
 
         self._conf_dict = conf_dict;
         
         self._ncs31x = Ncs31x()
         self._gpio = self._ncs31x._gpio
+        self._event = event
         self._dots = conf_dict["dots"]
 
+        self._mode_event = event.event("mode-button", "down")
+        self._up_event = event.event("up-button", "down")
+        self._down_event = event.event("down-button", "down")
+        
         if conf_dict['back_light']:
             self._ncs31x.backlight(conf_dict['back_light'])
 
