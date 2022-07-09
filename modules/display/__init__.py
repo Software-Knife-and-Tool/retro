@@ -21,7 +21,8 @@ Classes:
 
 Functions:
 
-    event_loop
+    state_machine(event)
+    event_loop()
 
 Misc variables:
 
@@ -61,30 +62,12 @@ class Display:
     _blank_timer = None
 
     _state = "time"
-    _state_machine = {
-        'blank': dict([
-            ( 'tick',  [ lambda self: None, 'blank' ] ),
-            ( 'blank', [ lambda self: None, 'blank' ] ),
-            ( 'up-button', [] ),
-            ( 'down-button', [] ),
-            ( 'mode-button', [] ),
-        ]),
-        'date': dict([
-            ( 'tick',  [ lambda self: GraAfch.date(self._gra_afch), 'date' ] ),
-            ( 'blank', [ lambda self: GraAfch.blank(self._gra_afch), 'date' ] ),
-            ( 'up-button', [] ),
-            ( 'down-button', [] ),
-            ( 'mode-button', [] ),
-        ]),
-        'time': dict([
-            ( 'tick', [ lambda self: GraAfch.now(self._gra_afch), 'time' ] ),
-            ( 'blank', [ lambda self: Ncs31x.blank(self._gra_afch._ncs31x), 'blank' ] ),
-            ( 'up-button', [] ),
-            ( 'down-button', [] ),
-            ( 'mode-button', [] ),
-        ]),
-    }
+    _state_machine = None
 
+    def date_display(self):
+        self._gra_afch._ncs31x.unblank()
+        self._gra_afch.date()
+                            
     def state_machine(self, event):
         key = list(event.keys())[0]
         self._state_machine[self._state][key][0](self)
@@ -104,6 +87,30 @@ class Display:
         self._gra_afch = gra_afch
 
         self._conf_dict = gra_afch._conf_dict;
+
+        self._state_machine = {
+            'blank': dict([
+                ( 'tick',        [ lambda self: None, 'blank' ] ),
+                ( 'blank',       [ lambda self: None, 'blank' ] ),
+                ( 'up-button',   [ lambda self: Ncs31x.unblank(self._gra_afch._ncs31x), 'time' ] ),
+                ( 'down-button', [ lambda self: Ncs31x.unblank(self._gra_afch._ncs31x), 'time' ] ),
+                ( 'mode-button', [ lambda self: Ncs31x.unblank(self._gra_afch._ncs31x), 'time' ] ),
+            ]),
+            'date': dict([
+                ( 'tick',        [ lambda self: Display.date_display(self), 'date' ] ),
+                ( 'blank',       [ lambda self: Ncs31x.blank(self), 'date' ] ),
+                ( 'up-button',   [ lambda self: None, 'time' ] ),
+                ( 'down-button', [ lambda self: None, 'time' ] ),
+                ( 'mode-button', [ lambda self: None, 'time' ] ),
+            ]),
+            'time': dict([
+                ( 'tick',        [ lambda self: GraAfch.time(self._gra_afch), 'time' ] ),
+                ( 'blank',       [ lambda self: Ncs31x.blank(self._gra_afch._ncs31x), 'blank' ] ),
+                ( 'up-button',   [ lambda self: None, 'time' ] ),
+                ( 'down-button', [ lambda self: None, 'time' ] ),
+                ( 'mode-button', [ lambda self: Display.date_display(self), 'date' ] ),
+            ]),
+        }
 
         # seconds timer
         self._sec_event = event.event("tick", None)

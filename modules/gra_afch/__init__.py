@@ -21,6 +21,8 @@ Classes:
 Functions:
 
     buttons()
+    date()
+    time()
     display_numerals(digits)
     update_backlight(color)
 
@@ -159,18 +161,18 @@ class GraAfch:
 
         self._ncs31x.display(buffer)
 
-    def now(self):
+    def time(self):
         """format the current time onto the display
         """
         
-        now_ = self._ncs31x.read_rtc(self._conf_dict["12hour"])
+        time = self._ncs31x.read_rtc(self._conf_dict["12hour"])
         self.display_numerals(
-            [now_.tm_hour // 10,
-             now_.tm_hour % 10,
-             now_.tm_min // 10,
-             now_.tm_min % 10,
-             now_.tm_sec // 10,
-             now_.tm_sec % 10,
+            [time.tm_hour // 10,
+             time.tm_hour % 10,
+             time.tm_min // 10,
+             time.tm_min % 10,
+             time.tm_sec // 10,
+             time.tm_sec % 10,
              8,
              8,
             ])
@@ -178,15 +180,14 @@ class GraAfch:
     def date(self):
         """format the current date  onto the display
         """
-        
-        now_ = self._ncs31x.read_rtc(self._conf_dict["UK"])
+        date = self._ncs31x.read_rtc(self._conf_dict["UK"])
         self.display_numerals(
-            [now_.tm_hour // 10,
-             now_.tm_hour % 10,
-             now_.tm_min // 10,
-             now_.tm_min % 10,
-             now_.tm_sec // 10,
-             now_.tm_sec % 10,
+            [0,
+             date.tm_mday,
+             date.tm_mon // 10,
+             date.tm_mon % 10,
+             (date.tm_year - 2000) // 10,
+             (date.tm_year - 2000) % 10,
              8,
              8,
             ])
