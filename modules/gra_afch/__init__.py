@@ -26,7 +26,6 @@ Functions:
 
 Misc variables:
 
-    VERSION
     _conf_dict
     _dots
     _lock
@@ -165,6 +164,22 @@ class GraAfch:
         """
         
         now_ = self._ncs31x.read_rtc(self._conf_dict["12hour"])
+        self.display_numerals(
+            [now_.tm_hour // 10,
+             now_.tm_hour % 10,
+             now_.tm_min // 10,
+             now_.tm_min % 10,
+             now_.tm_sec // 10,
+             now_.tm_sec % 10,
+             8,
+             8,
+            ])
+
+    def date(self):
+        """format the current date  onto the display
+        """
+        
+        now_ = self._ncs31x.read_rtc(self._conf_dict["UK"])
         self.display_numerals(
             [now_.tm_hour // 10,
              now_.tm_hour % 10,
