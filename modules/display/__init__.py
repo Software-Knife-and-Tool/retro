@@ -61,7 +61,8 @@ class Display:
     _blank_event = None
     _blank_timer = None
 
-    _state = "time"
+    _state = None
+
     _state_machine = None
 
     def date_display(self):
@@ -88,6 +89,7 @@ class Display:
 
         self._conf_dict = gra_afch._conf_dict;
 
+        self._state = "time"
         self._state_machine = {
             'blank': dict([
                 ( 'tick',        [ lambda self: None, 'blank' ] ),

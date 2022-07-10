@@ -69,8 +69,11 @@ class GraAfch:
     # ncs31x
     _ncs31x = None
     _gpio = None
+
+    # event framework
     _event = None
-    
+
+    # configuration
     _conf_dict = None
 
     # display
@@ -120,14 +123,14 @@ class GraAfch:
         """
         
         def tubes_(str_, start):
-            tube_map_ = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
+            tube_map_ = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 0]
 
-            def num_(ch):
-                return 0 if ch == ' ' else int(ch)
+            def digit_(digit):
+                return 10 if digit == 0x20 else digit
 
-            bits = (tube_map_[num_(str_[start])]) << 20
-            bits |= (tube_map_[num_(str_[start - 1])]) << 10
-            bits |= (tube_map_[num_(str_[start - 2])])
+            bits = (tube_map_[digit_(str_[start])]) << 20
+            bits |= (tube_map_[digit_(str_[start - 1])]) << 10
+            bits |= (tube_map_[digit_(str_[start - 2])])
 
             return bits
 
@@ -167,9 +170,9 @@ class GraAfch:
         
         time = self._ncs31x.read_rtc(self._conf_dict["12hour"])
         self.display_numerals(
-            [time.tm_hour // 10,
+            [time.tm_hour // 10 if time.tm_hour // 10 else 0x20,
              time.tm_hour % 10,
-             time.tm_min // 10,
+             time.tm_min // 10 if time.tm_hour // 10 else 0x20,
              time.tm_min % 10,
              time.tm_sec // 10,
              time.tm_sec % 10,
@@ -182,9 +185,9 @@ class GraAfch:
         """
         date = self._ncs31x.read_rtc(self._conf_dict["UK"])
         self.display_numerals(
-            [0,
-             date.tm_mday,
-             date.tm_mon // 10,
+            [date.tm_mday // 10 if time.tm_mday // 10 else 0x20,
+             date.tm_mday % 10,
+             date.tm_mon // 10 if time.tm_mon // 10 else 0x20,
              date.tm_mon % 10,
              (date.tm_year - 2000) // 10,
              (date.tm_year - 2000) % 10,
