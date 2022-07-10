@@ -61,7 +61,6 @@ class Ncs31x:
     MODE_BUTTON_PIN = 18
     """
 
-    # pigpio pin constants
     LE_PIN = 22
     R5222_PIN = 6
     
