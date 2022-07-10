@@ -162,39 +162,67 @@ class GraAfch:
         right = dots_(right)
         fmt_(right, buffer, Ncs31x._RIGHT_BUFFER_START, 4)
 
+        self._ncs31x.blank()
         self._ncs31x.display(buffer)
+        self._ncs31x.unblank()
 
     def time(self):
         """format the current time onto the display
         """
         
-        time = self._ncs31x.read_rtc(self._conf_dict["12hour"])
-        self.display_numerals(
-            [time.tm_hour // 10 if time.tm_hour // 10 else 0x20,
-             time.tm_hour % 10,
-             time.tm_min // 10 if time.tm_hour // 10 else 0x20,
-             time.tm_min % 10,
-             time.tm_sec // 10,
-             time.tm_sec % 10,
-             8,
-             8,
-            ])
+        time = self._ncs31x.read_rtc(self._conf_dict["time-format"] == "12hour")
+        if self._conf_dict["zero-blank"]:
+            self.display_numerals(
+                [time.tm_hour // 10 if time.tm_hour // 10 else 0x20,
+                 time.tm_hour % 10,
+                 time.tm_min // 10 if time.tm_hour // 10 else 0x20,
+                 time.tm_min % 10,
+                 time.tm_sec // 10,
+                 time.tm_sec % 10,
+                 8,
+                 8,
+                 ])
+        else:
+            self.display_numerals(
+                [time.tm_hour // 10,
+                 time.tm_hour % 10,
+                 time.tm_min // 10,
+                 time.tm_min % 10,
+                 time.tm_sec // 10,
+                 time.tm_sec % 10,
+                 8,
+                 8,
+                 ])
 
+            
     def date(self):
         """format the current date  onto the display
         """
-        date = self._ncs31x.read_rtc(self._conf_dict["UK"])
-        self.display_numerals(
-            [date.tm_mday // 10 if time.tm_mday // 10 else 0x20,
-             date.tm_mday % 10,
-             date.tm_mon // 10 if time.tm_mon // 10 else 0x20,
-             date.tm_mon % 10,
-             (date.tm_year - 2000) // 10,
-             (date.tm_year - 2000) % 10,
-             8,
-             8,
-            ])
-
+        date = self._ncs31x.read_rtc(self._conf_dict["date-format"])
+        
+        if self._conf_dict["zero-blank"]:
+            self.display_numerals(
+                [date.tm_mday // 10 if time.tm_mday // 10 else 0x20,
+                 date.tm_mday % 10,
+                 date.tm_mon // 10 if time.tm_mon // 10 else 0x20,
+                 date.tm_mon % 10,
+                 (date.tm_year - 2000) // 10,
+                 (date.tm_year - 2000) % 10,
+                 8,
+                 8,
+                 ])
+        else:
+            self.display_numerals(
+                [date.tm_mday // 10,
+                 date.tm_mday % 10,
+                 date.tm_mon // 10,
+                 date.tm_mon % 10,
+                 (date.tm_year - 2000) // 10,
+                 (date.tm_year - 2000) % 10,
+                 8,
+                 8,
+                 ])
+            
     def buttons(self):
         """button events
         """
@@ -253,8 +281,8 @@ class GraAfch:
         self._up_event = event.event("up-button", "down")
         self._down_event = event.event("down-button", "down")
         
-        if conf_dict['back_light']:
-            self._ncs31x.backlight(conf_dict['back_light'])
+        if conf_dict['back-light']:
+            self._ncs31x.backlight(conf_dict['back-light'])
 
         self._ncs31x.blank()
         self._ncs31x.clear()

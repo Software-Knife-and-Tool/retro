@@ -120,8 +120,8 @@ class Display:
         self._sec_timer.start()
 
         # display timeout
-        if self._conf_dict["display_timeout"]:
-            tm = self._conf_dict["display_timeout"]
+        if self._conf_dict["blank-timeout"]:
+            tm = self._conf_dict["blank-timeout"]
             self._blank_event = event.event("blank", None)
             self._blank_timer = RepeatTimer(tm, lambda: event.send(self._blank_event))
             self._blank_timer.start()

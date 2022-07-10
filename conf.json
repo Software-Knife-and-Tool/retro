@@ -1,8 +1,9 @@
 {
-    "12hour": true,
-    "UK": false,
-    "back_light": [0, 0, 0],
-    "display_timeout": 60,
+    "time-format": "12hour",
+    "date-format": "US",
+    "zero-blank": false,
+    "back-light": [0, 0, 0],
+    "blank-timeout": 60,
     "dots": true,
     "ntp": true
 }
