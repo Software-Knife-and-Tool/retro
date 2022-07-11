@@ -24,6 +24,7 @@ Functions:
     date()
     time()
     display_numerals(digits)
+
     update_backlight(color)
 
 Misc variables:
@@ -258,9 +259,6 @@ class GraAfch:
         self._down_cb = self._gpio.callback(Ncs31x.DOWN_BUTTON_PIN, self._INT_EDGE_RISING,
                                      debounce_down)
 
-    def config(self):
-        return self._conf_dict
-
     def __init__(self, conf_dict, event):
         """initialize the gra-afch module
 
@@ -281,9 +279,6 @@ class GraAfch:
         self._up_event = event.event("up-button", "down")
         self._down_event = event.event("down-button", "down")
         
-        if conf_dict['back-light']:
-            self._ncs31x.backlight(conf_dict['back-light'])
-
         self._ncs31x.blank()
         self._ncs31x.clear()
 
