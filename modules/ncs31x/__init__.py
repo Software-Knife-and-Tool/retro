@@ -22,7 +22,6 @@ class Ncs31x:
     """
 
     """ pin to GPIO translation
-          User GPIO 2-27 (0 and 1 are reserved).
 
           GPIO	pin	pin	GPIO	
     3V3	   -	1	2	-	5V
@@ -46,7 +45,7 @@ class Ncs31x:
           26	37	38	20	mosi
     Gnd    -	39	40	21	sclk
 
-    # wiringpi pin constants
+    # bus pin assignment
     LE_PIN = 3
     R5222_PIN = 22
     
@@ -109,13 +108,13 @@ class Ncs31x:
     def clear(self):
         """turn off all tubes
         """
+
         self.display([0 for _ in range(8)])
         
     def blank(self):
         """power off the display
         """
 
-        # self.display([0 for _ in range(8)])
         self._gpio.write(self.LE_PIN, 0)
 
     def unblank(self):

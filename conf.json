@@ -2,7 +2,7 @@
     "time-format": "12hour",
     "date-format": "US",
     "zero-blank": false,
-    "back-light": [0, 0, 0],
+    "back-light": [100, 20, 0],
     "blank-timeout": 60,
     "dots": true,
     "ntp": true

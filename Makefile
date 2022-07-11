@@ -1,9 +1,7 @@
 #
 #
 #
-.PHONY: install blank run
-
-SRCS = ncs31x gra-afch
+.PHONY: install blank unblank moderne
 
 BASE = /home/putnamjm
 
