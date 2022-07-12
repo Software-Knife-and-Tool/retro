@@ -1,0 +1,39 @@
+@font-face {
+    font-family: 'Magneto';
+    src: url('css/MAGNETOB.TTF') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'DymaxionScript';
+    src: url('css/DYMAXION.TTF') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+// buttons
+.retro-btn {
+    border: none;
+    color: text-white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 18px;
+    transition: duration-300 ease-in-out;
+    focus: outline-none shadow-outline bg-green-700;
+}
+
+.retro-btn:hover {
+    background-color: bg-green-700;
+    color: text-white;
+    font-weight: bold;
+    border: rounded;
+}
+
+.retro-btn:focus {
+    background-color: bg-green-900;
+    color: text-white;
+    font-weight: italic;
+    border: rounded;
+}

@@ -1,7 +1,7 @@
 #
+# moderne development
 #
-#
-.PHONY: install blank unblank moderne
+.PHONY: install blank unblank moderne app
 
 BASE = /home/putnamjm
 
@@ -13,11 +13,13 @@ install:
 	@sudo make -C ../service install
 
 unblank:
-	@sudo env "PYTHONPATH=$(PACKAGES)" python3 unblank.py
+	@sudo env "PYTHONPATH=$(PACKAGES)" python3 lib/unblank.py
 
 blank:
-	@sudo env "PYTHONPATH=$(PACKAGES)" python3 blank.py
+	@sudo env "PYTHONPATH=$(PACKAGES)" python3 lib/blank.py
 
 moderne:
-	@sudo env "PYTHONPATH=$(PACKAGES)" python3 moderne.py
+	@sudo env "PYTHONPATH=$(PACKAGES)" python3 lib/moderne.py
 
+app:
+	@env "PYTHONPATH=$(PACKAGES)" python3 lib/app.py

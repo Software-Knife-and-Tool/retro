@@ -47,7 +47,7 @@ if __name__ == '__main__':
     signal.signal(signal.SIGTERM, lambda s, args : os._exit(0))
 
     conf_dict = []
-    with open(os.path.join(os.path.dirname(__file__), 'conf.json'), 'r') as file:
+    with open(os.path.join(os.path.dirname(__file__), '../etc/moderne.json'), 'r') as file:
         conf_dict = json.load(file)
 
     moderne = Moderne(conf_dict)
