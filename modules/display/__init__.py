@@ -28,6 +28,7 @@ Functions:
     event_loop()
     state_machine(event)
     unblank_display(self)
+    version()
 
 Misc variables:
 
@@ -73,6 +74,9 @@ class RepeatTimer(Timer):
 class Display:
     """display utilities
     """
+
+    VERSION = '0.0.1'
+    
     _gra_afch = None
     _event = None
     _conf_dict = None

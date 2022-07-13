@@ -17,9 +17,101 @@
       <div class="row">
         <div class="one-half column" style="margin-top: 10%">
           <h3 style="font-family:Atomicaboy">Vortex Industrial Clock</h3>
-          <p>This index.html page is a placeholder with the CSS, font and favicon. It's just waiting for you to add some content! If you need some help hit up the <a href="http://www.getskeleton.com">Skeleton documentation</a>.</p>
+          <div class="container">
+            <div class="row">
+              <div class="three columns"><h5>version</h5></div>
+            </div>
+            <div class="row">
+              <div class="three columns"><h5>uptime</h5></div>
+            </div>
+            <div class="row">
+              <div class="five columns"><h5>Vortex RTC</h5></div>
+            </div>
+            <div class="row">
+              <div class="three columns"><h5>system</h5></div>
+            </div>
+          </div> <!-- container -->
         </div>
-      </div>
-    </div>
+      </div> <!-- row -->
+      <div class="row">
+        <div class="one-half column" style="margin-top: 1%">          
+          <h4 style="font-family:Atomicaboy">Configuration</h4>
+          <div class="container">
+            <form>
+              <div class="row">
+                <div class="twelve columns">
+                  <label for="ntp">
+                    <input type="checkbox">
+                    <span class="label-body">sync to NTP on start</span>
+                  </label>                  
+                </div>
+              </div> <!-- row -->
+              <div class="row">
+                <div class="twelve columns">
+                  <label for="zero">
+                    <input type="checkbox">
+                    <span class="label-body">blank leading zeros</span>
+                  </label>                  
+                </div>
+              </div> <!-- row -->              
+              <div class="row">
+                <div class="twelve columns">
+                  <label for="hour format">
+                    <input type="radio" name="hour-fmt" id="12hour" checked>
+                    <span class="label-body">12 hour</span>
+                    &nbsp;
+                    <input type="radio" name="hour-fmt" id="24hour">
+                    <span class="label-body">24 hour</span>
+                  </label>
+                </div> <!-- row -->
+              </div>
+              <div class="row">
+                <div class="twelve columns">
+                  <label for="date format">
+                    <input type="radio" name="date-fmt" id="US" checked>
+                    <span class="label-body">US date</span>
+                    &nbsp;
+                    <input type="radio" name="date-fmt" id="UK">
+                    <span class="label-body">UK date</span>
+                    &nbsp;
+                    <input type="radio" name="date-fmt" id="ISO">
+                    <span class="label-body">ISO date</span>
+                  </label>
+                </div> <!-- row -->
+              </div>
+              <div class="row">
+                <div class="twelve columns">
+                  <label for="backlight">
+                    <input type="checkbox">
+                    <span class="label-body">backlight</span>
+                  </label>                  
+                </div>
+              </div> <!-- row -->
+              <div class="row">
+                <div class="twelve columns">
+                  <label for="dots">
+                    <input type="checkbox">
+                    <span class="label-body">dots</span>
+                    &nbsp;
+                    <input type="checkbox">
+                    <span class="label-body">blink</span>
+                  </label>                  
+                </div>
+              </div> <!-- row -->
+              <div class="row" style="margin-top: 1%">
+                <div class="twelve columns">
+                  <input class="button" type="button" value="configure">
+                  <input class="button" type="button" value="reset">
+                </div>
+              </div> <!-- row -->
+            </form>
+          </div> <!-- container --> 
+        </div>
+      </div> <!-- row -->      
+      <div class="row">
+        <h6 style="text-align: center; font-family:Atomicaboy">Vortex Instrument Labs</h6>
+        <!-- <a href="https://github.com/Software-Knife-and-Tool/retro"><h6 style="font-family:Atomicaboy"></h6></a> -->
+      </div> <!-- row -->
+    </div> <!-- container -->
   </body>
 </html>
