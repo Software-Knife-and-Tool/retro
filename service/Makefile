@@ -1,5 +1,5 @@
 #
-# moderne display service
+# rerto display service
 #
 all:
 	echo "install: install (needs root)"

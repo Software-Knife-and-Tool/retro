@@ -1,4 +1,4 @@
-# Vortex Instrument Labs - Moderne Smart Clock
+# Vortex Instrument Labs - Industrial Smart Clock
 
 _Beating Yesterday's Technology Senseless_
 
@@ -12,10 +12,11 @@ We here at *Vortex Instrument Labs* appreciate a good anachronism as much or mor
 person, so we're releasing this code in hopes it'll be of use to someone with an interst in
 reviving Cold War instrument technology.
 
-*Moderne* is a Python3 time-of-day clock for the GRA&AFCH NCS31x Raspberry Pi controller.
+*Vortex Industrial Clock* is a Python3 time-of-day clock for the GRA&AFCH NCS31x Raspberry Pi controller,
+based on the *Retro* display controller.
 
 The original project was based on the venerable *wiringpi* library, which is now deprecated
-in recent Raspberry Pi releases. *Moderne* is a port of similar code to the *pigpio* daemon.
+in recent Raspberry Pi releases. *Retro* is a port of similar code to the *pigpio* daemon.
 
 The documentation for *pigpio* is https://abyz.me.uk/rpi/pigpio/python.html
 

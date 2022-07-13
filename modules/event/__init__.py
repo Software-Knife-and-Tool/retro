@@ -12,7 +12,7 @@
 ##
 ##########
 
-"""Manage moderne events
+"""Manage retro events
 
 Classes:
     Event

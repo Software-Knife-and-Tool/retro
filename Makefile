@@ -1,11 +1,11 @@
 #
-# moderne development
+# retro development
 #
-.PHONY: install blank unblank moderne app
+.PHONY: install blank unblank retro app
 
 BASE = /home/putnamjm
 
-PACKAGES = $(BASE)/moderne/modules:$(BASE)/.local/lib/python3.9/site-packages
+PACKAGES = $(BASE)/retro/modules:$(BASE)/.local/lib/python3.9/site-packages
 
 install:
 	@sudo apt install -y python3-pip pigpiod
@@ -18,8 +18,8 @@ unblank:
 blank:
 	@sudo env "PYTHONPATH=$(PACKAGES)" python3 lib/blank.py
 
-moderne:
-	@sudo env "PYTHONPATH=$(PACKAGES)" python3 lib/moderne.py
+retro:
+	@sudo env "PYTHONPATH=$(PACKAGES)" python3 lib/retro.py
 
 app:
 	@env "PYTHONPATH=$(PACKAGES)" python3 lib/app.py
