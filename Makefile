@@ -9,7 +9,7 @@ PACKAGES = $(BASE)/retro/modules:$(BASE)/.local/lib/python3.9/site-packages
 
 install:
 	@sudo apt install -y python3-pip pigpiod
-	@pip3 install pigpio dbus-python
+	@pip3 install bottle jyserver pigpio dbus-python
 	@sudo make -C ../service install
 
 unblank:
