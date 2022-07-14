@@ -28,11 +28,16 @@ class Retro:
     """retro class
     """
     
+    VERSION = '0.0.1'
+
     gra_afch = None
     event = None
     display = None
 
     _conf_dict = None
+
+    def version(self):
+        return self.VERSION
 
     def __init__(self, conf_dict):
         self.event = Event()

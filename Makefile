@@ -11,6 +11,7 @@ install:
 	@sudo apt install -y python3-pip pigpiod
 	@pip3 install bottle jyserver pigpio
 	@sudo make -C ./service install
+	@echo make sure you add retro to the hosts file
 
 ufw:
 	@sudo apt install -y ufw
