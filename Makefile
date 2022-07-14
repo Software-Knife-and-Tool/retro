@@ -17,6 +17,8 @@ ufw:
 	@sudo ufw allow ssh
 	@sudo ufw allow 8080
 	@sudo ufw allow 443
+	@sudo ufw enable
+	@sudo ufw status	
 
 unblank:
 	@sudo env "PYTHONPATH=$(PACKAGES)" python3 $(LIB)/unblank.py
