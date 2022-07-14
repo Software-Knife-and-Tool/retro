@@ -1,7 +1,7 @@
 #
 # retro development
 #
-.PHONY: install blank unblank retro app port
+.PHONY: install blank unblank retro app ufw
 
 BASE = ../
 LIB = ./retro-lib
@@ -12,9 +12,11 @@ install:
 	@pip3 install bottle jyserver pigpio
 	@sudo make -C ./service install
 
-port:
+ufw:
 	@sudo apt install -y ufw
 	@sudo ufw allow ssh
+	@sudo ufw allow 8080
+	@sudo ufw allow 443
 
 unblank:
 	@sudo env "PYTHONPATH=$(PACKAGES)" python3 $(LIB)/unblank.py
