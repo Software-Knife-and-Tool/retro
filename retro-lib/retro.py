@@ -27,8 +27,9 @@ from display import Display
 class Retro:
     """retro class
     """
-    VERSION = '0.0.1'
     
+    VERSION = '0.0.1'
+
     gra_afch = None
     event = None
     display = None
