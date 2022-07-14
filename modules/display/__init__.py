@@ -44,7 +44,7 @@ import pigpio
 import os
 
 from datetime import datetime
-from time import localtime, strftime
+from time import localtime, strftime, mktime
 from threading import Timer
 
 from event import Event
@@ -112,6 +112,9 @@ class Display:
         self._gra_afch._ncs31x.clear()
         if self._is_blank:
             self._gra_afch._ncs31x.blank()
+
+    def display_time(self):
+        return datetime.fromtimestamp(mktime(self._gra_afch._ncs31x.read_rtc(False)))
 
     # simple state machine
     def state_machine(self, event):
