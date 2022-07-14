@@ -1,6 +1,6 @@
-# Vortex Instrument Labs - Retro Industrial Smart Clock
+# -= Vortex Instrument Labs =- - Nixie Tube Smart Clock
 
-_Beating Yesterday's Technology Senseless_
+_Running Yesterday's Technology Right Into the Ground_
 
 If you're of a certain age, Nixie tube instruments were the ne plus ultra of Cold War high tech cool.
 
@@ -16,14 +16,16 @@ reviving Cold War instrument technology.
 
 The original project, https://github.com/afch/NixieClockRaspberryPi, was based on the venerable *wiringpi*
 library, which is now deprecated in recent Raspberry Pi releases. *Retro* is a port of similar code to
-the *pigpio* daemon and adds a web interface for configuration.
+the *pigpio* daemon.
+
 
 The documentation for *pigpio* is https://abyz.me.uk/rpi/pigpio/python.html
 
 The hardware can be obtained from http://gra-afch.com
 
-* Moderne
+* Retro
   * currently on python 3.9.2
+  * web interface for configuration
   * for IN-12 and IN-14 Nixie tubes
   * GRA-AFCH NCS31[24] controller with Raspberry Pi hat
   * many exciting updates planned
