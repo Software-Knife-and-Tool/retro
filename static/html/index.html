@@ -16,7 +16,7 @@
     <div class="container">
       <div class="row">
         <div class="one-half column" style="margin-top: 10%">
-          <h3 style="font-family:Atomicaboy">Vortex Retro Clock</h3>
+          <h3 style="font-family:Atomicaboy">-= Vortex Retro Clock =-</h3>
           <hr>
           <div class="container">
             <div class="row">
@@ -99,22 +99,33 @@
                     <span class="label-body">dots</span>
                     &nbsp;
                     <input type="checkbox">
-                    <span class="label-body">blink</spa>
-                  </label>                  
+                    <span class="label-body">blink</span>
+                  </label>
                 </div>
               </div> <!-- row -->
+              <div class="row" style="margin-top: 1%>
+                <div class="twelve columns">
+                  <input id="configure" class="button" type="button" value="configure" onclick="server.configure()">
+                  <input id="reset" class="button" type="button" value="reset" onclick="server.reset()">
+                </div>
+              </div> <!-- row -->
+            </form>
+            <hr>
+            <form>
               <div class="row" style="margin-top: 1%">
                 <div class="twelve columns">
-                  <input class="button" type="button" value="configure">
-                  <input class="button" type="button" value="reset">
+                  <input id="clean" class="button" type="button" value="clean" onclick="server.clean()">
+                  <input id="blank" class="button" type="button" value="blank" onclick="server.blank()">
+                  <input id="unblank" class="button" type="button" value="unblank" onclick="server.unblank()">
+                  <input id="reboot" class="button" type="button" value="reboot" onclick="server.reboot()">
                 </div>
               </div> <!-- row -->
             </form>
           </div> <!-- container --> 
         </div>
-      </div> <!-- row -->      
+      </div> <!-- row -->
       <div class="row">
-        <h6 style="text-align: center; font-family:Atomicaboy">-= Vortex Instrument Labs =-</h6>
+        <div class="twelve columns"><h6 style="text-align: center; font-family:Atomicaboy">-= Vortex Instrument Labs =-</h6></div>
         <!-- <a href="https://github.com/Software-Knife-and-Tool/retro"><h6 style="font-family:Atomicaboy"></h6></a> -->
       </div> <!-- row -->
     </div> <!-- container -->

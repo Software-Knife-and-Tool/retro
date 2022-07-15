@@ -24,6 +24,20 @@ event_thread = Thread(group=None, target=retro.display.event_loop, name=None, ar
 
 @js.use
 class App():
+    # buttons
+    def configure(self):
+        print("configure me")
+    def reset(self):
+        print("reset me")
+    def clean(self):
+        retro.display.clean_display()
+    def blank(self):
+        retro.display.blank_display()
+    def unblank(self):
+        retro.display.unblank_display()
+    def reboot(self):
+        os.system("sudo reboot"); 
+
     @js.task
     def update_clock(self, retro):
         while True:
@@ -55,4 +69,4 @@ retro.display.unblank_display()
 
 event_thread.start()
 
-run(host='retro', port=8080, debug=True)
+run(host='retro', port=8080, debug=False)
