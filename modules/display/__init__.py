@@ -92,6 +92,20 @@ class Display:
 
     _state_machine = None
 
+    def clean_display(self):
+        display = [0 for _ in range(8)]
+        
+        self._gra_afch._ncs31x.unblank()
+        self._gra_afch._ncs31x.backlight([0, 0, 0])
+
+        for _ in range(10):
+            for ch in range(10):
+                for tube in range(8):
+                    display[tube] = ch
+                self._gra_afch.display_numerals(display)
+                time.sleep(0.01)
+                self._gra_afch._ncs31x.clear()
+                
     def blank_display(self):
         self._is_blank = True
         self._gra_afch._ncs31x.blank()
