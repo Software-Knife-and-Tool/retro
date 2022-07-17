@@ -43,7 +43,7 @@ class App():
         while True:
             self.js.dom.version.innerHTML = retro.version()
             self.js.dom.up_time.innerHTML = up_since.strftime('%m/%d/%Y %H:%M:%S')
-            self.js.dom.display_time.innerHTML = retro.display.display_time().strftime('%m/%d/%Y %H:%M:%S')
+            self.js.dom.display_time.innerHTML = retro.display.time().strftime('%m/%d/%Y %H:%M:%S')
             self.js.dom.system_time.innerHTML = datetime.now().strftime('%m/%d/%Y %H:%M:%S')
             time.sleep(1)
 
@@ -69,4 +69,4 @@ retro.display.unblank_display()
 
 event_thread.start()
 
-run(host='retro', port=8080, debug=False)
+run(host='retro', port=8080, debug=False, quiet=True)

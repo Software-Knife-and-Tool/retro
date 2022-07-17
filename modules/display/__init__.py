@@ -81,15 +81,16 @@ class Display:
     _event = None
     _conf_dict = None
 
-    _sec_event = None
     _sec_timer = None
-
-    _is_blank = None
-    _blank_event = None
     _blank_timer = None
+    
+    _is_blank = None
+
+    _tick_event = None
+    _blank_event = None
+    _unblank_event = None
 
     _state = None
-
     _state_machine = None
 
     def clean_display(self):
@@ -107,16 +108,22 @@ class Display:
                 self._gra_afch._ncs31x.clear()
                 
     def blank_display(self):
+        self._event.send(self._blank_event)
+
+    def unblank_display(self):
+        self._event.send(self._unblank_event)
+
+    def _blank(self):
         self._is_blank = True
         self._gra_afch._ncs31x.blank()
         self._gra_afch._ncs31x.backlight([0, 0, 0])
 
-    def unblank_display(self):
+    def _unblank(self):
         self._is_blank = False
         self._gra_afch._ncs31x.unblank()
         self._gra_afch._ncs31x.backlight(self._conf_dict["back-light"])
 
-    def date_display(self):
+    def _date(self):
         self._gra_afch._ncs31x.blank()
         time.sleep(.25)
         self._gra_afch._ncs31x.unblank()
@@ -127,13 +134,14 @@ class Display:
         if self._is_blank:
             self._gra_afch._ncs31x.blank()
 
-    def display_time(self):
+    def time(self):
         return datetime.fromtimestamp(mktime(self._gra_afch._ncs31x.read_rtc(False)))
 
     # simple state machine
     def state_machine(self, event):
         key = list(event.keys())[0]
-
+        # print(self._state, end=" ")
+        # print(event)
         self._state_machine[self._state][key][0](self)
         self._state = self._state_machine[self._state][key][1]
 
@@ -146,49 +154,53 @@ class Display:
     def __init__(self, gra_afch, event):
         """initialize the display module
         """
-
+        self._conf_dict = gra_afch._conf_dict;
+        
         self._event = event
         self._gra_afch = gra_afch
 
-        self._conf_dict = gra_afch._conf_dict;
-
-        self._state = "time"
+        self._state = 'time'
         self._state_machine = {
             'blank': dict([
                 ( 'tick',        [ lambda self: None, 'blank' ] ),
                 ( 'blank',       [ lambda self: None, 'blank' ] ),
-                ( 'up-button',   [ lambda self: Display.unblank_display(self), 'time' ] ),
-                ( 'down-button', [ lambda self: Display.unblank_display(self), 'time' ] ),
-                ( 'mode-button', [ lambda self: Display.unblank_display(self), 'time' ] ),
+                ( 'unblank',     [ lambda self: Display._unblank(self), 'time' ] ),
+                ( 'up-button',   [ lambda self: Display._unblank(self), 'time' ] ),
+                ( 'down-button', [ lambda self: Display._unblank(self), 'time' ] ),
+                ( 'mode-button', [ lambda self: Display._unblank(self), 'time' ] ),
             ]),
             'date': dict([
-                ( 'tick',        [ lambda self: Display.date_display(self), 'date' ] ),
-                ( 'blank',       [ lambda self: Display.blank_display(self), 'date' ] ),
+                ( 'tick',        [ lambda self: Display._date(self), 'date' ] ),
+                ( 'blank',       [ lambda self: Display._blank(self), 'date' ] ),
+                ( 'unblank',     [ lambda self: Display._unblank(self), 'date' ] ),
                 ( 'up-button',   [ lambda self: None, 'time' ] ),
                 ( 'down-button', [ lambda self: None, 'time' ] ),
                 ( 'mode-button', [ lambda self: None, 'time' ] ),
             ]),
             'time': dict([
                 ( 'tick',        [ lambda self: GraAfch.time(self._gra_afch), 'time' ] ),
-                ( 'blank',       [ lambda self: Display.blank_display(self), 'blank' ] ),
+                ( 'blank',       [ lambda self: Display._blank(self), 'blank' ] ),
+                ( 'unblank',     [ lambda self: Display._unblank(self), 'time' ] ),
                 ( 'up-button',   [ lambda self: None, 'time' ] ),
                 ( 'down-button', [ lambda self: None, 'time' ] ),
-                ( 'mode-button', [ lambda self: Display.date_display(self), 'time' ] ),
+                ( 'mode-button', [ lambda self: Display._date(self), 'date' ] ),
             ]),
         }
 
-        if self._conf_dict["ntp"]:
+        if self._conf_dict['ntp']:
             gra_afch._ncs31x.write_rtc(datetime.now().timetuple())
 
+        self._tick_event = event.event('tick', None)
+        self._blank_event = event.event('blank', None)
+        self._unblank_event = event.event('unblank', None)
+                    
         # seconds timer
-        self._sec_event = event.event("tick", None)
-        self._sec_timer = RepeatTimer(1, lambda: event.send(self._sec_event))
+        self._sec_timer = RepeatTimer(1, lambda: event.send(self._tick_event))
         self._sec_timer.start()
 
         # display timeout
-        if self._conf_dict["blank-timeout"]:
-            tm = self._conf_dict["blank-timeout"]
-            self._blank_event = event.event("blank", None)
+        if self._conf_dict['blank-timeout']:
+            tm = self._conf_dict['blank-timeout']
             self._blank_timer = RepeatTimer(tm, lambda: event.send(self._blank_event))
             self._blank_timer.start()
 
