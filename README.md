@@ -29,3 +29,4 @@ The hardware can be obtained from http://gra-afch.com
   * for IN-12 and IN-14 Nixie tubes
   * GRA-AFCH NCS31[24] controller with Raspberry Pi hat
   * many exciting updates planned
+  * sadly, many features incomplete and there are hardwired path names throughout
