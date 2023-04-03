@@ -1,4 +1,4 @@
-# -= Vortex Instrument Labs =- - Nixie Tube Smart Clock
+# Nixie Tube Smart Clock
 
 _Running Yesterday's Technology Right Into the Ground_
 
